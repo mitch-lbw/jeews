@@ -18,7 +18,6 @@ public class OrganizationServiceImpl implements Organization
      */
     public void getContactInfo( String arg0 )
     {
-        // TODO Auto-generated method stub
         
     }
 
