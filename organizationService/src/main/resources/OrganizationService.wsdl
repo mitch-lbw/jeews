@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wsdl:definitions name="OrganizationJMSEndpointService"
+	targetNamespace="http://de.expit.jeews/samples/organization" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+	xmlns:tns="http://de.expit.jeews/samples/organization" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+	xmlns:soapjms="http://www.w3.org/2010/soapjms/">
+
+	<wsp:Policy wsu:Id="expitPolicy" xmlns:wsp="http://www.w3.org/ns/ws-policy"
+		xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd">
+		<wsp:ExactlyOne>
+			<wsp:All>
+				<sp:SupportingTokens
+					xmlns:sp="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy">
+					<wsp:Policy>
+						<sp:UsernameToken
+							sp:IncludeToken="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy/IncludeToken/AlwaysToRecipient">
+							<wsp:Policy>
+								<sp:WssUsernameToken11 />
+							</wsp:Policy>
+						</sp:UsernameToken>
+					</wsp:Policy>
+				</sp:SupportingTokens>
+			</wsp:All>
+		</wsp:ExactlyOne>
+	</wsp:Policy>
+
+	<wsdl:types>
+		<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+			targetNamespace="http://de.expit.jeews/samples/organization">
+			<xsd:complexType name="InputType">
+				<xsd:sequence>
+					<xsd:element name="Name" type="xsd:string"></xsd:element>
+					<xsd:element name="Vorname" type="xsd:string"></xsd:element>
+					<xsd:element name="Geschlecht" type="tns:Geschlecht-Type">
+					</xsd:element>
+				</xsd:sequence>
+			</xsd:complexType>
+			<xsd:simpleType name="Geschlecht-Type">
+				<xsd:restriction base="xsd:string">
+					<xsd:enumeration value="m"></xsd:enumeration>
+					<xsd:enumeration value="w"></xsd:enumeration>
+				</xsd:restriction>
+			</xsd:simpleType>
+		</xsd:schema>
+	</wsdl:types>
+	<wsdl:message name="getContactInfoResponse">
+		<wsdl:part name="return" type="xsd:string">
+		</wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="getContactInfo">
+		<wsdl:part name="arg0" type="xsd:string">
+		</wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="getContactInfoResponse1">
+		<wsdl:part name="getContactInfoResponse1" type="tns:InputType"></wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="simpleOutputRequest">
+		<wsdl:part name="simpleOutputRequest" type="xsd:string"></wsdl:part>
+	</wsdl:message>
+
+	<wsdl:portType name="Organization">
+		<wsdl:operation name="getContactInfo">
+			<wsdl:input message="tns:getContactInfo" name="getContactInfo">
+			</wsdl:input>
+		</wsdl:operation>
+	</wsdl:portType>
+
+	<wsdl:binding name="JMSSoapBinding" type="tns:Organization">
+		<soap:binding style="rpc" transport="http://www.w3.org/2010/soapjms/" />
+		<wsdl:operation name="getContactInfo">
+			<soap:operation soapAction="" style="rpc" />
+			<wsdl:input name="getContactInfo">
+				<soap:body namespace="http://de.expit.jeews/samples/organization"
+					use="literal" />
+			</wsdl:input>
+		</wsdl:operation>
+		<soapjms:jndiURL></soapjms:jndiURL>
+		<soapjms:jndiInitialContextFactory>org.jboss.as.naming.InitialContextFactory
+		</soapjms:jndiInitialContextFactory>
+		<soapjms:jndiConnectionFactoryName>java:global/jms/MQConnectionFactory</soapjms:jndiConnectionFactoryName>
+	</wsdl:binding>
+
+	<wsdl:service name="OrganizationService">
+		<wsp:PolicyReference xmlns:wsp="http://www.w3.org/ns/ws-policy"
+			URI="#expitPolicy" />
+		<wsdl:port binding="tns:JMSSoapBinding" name="JmsEndpointPort">
+			<soap:address
+				location="jms:jndi:java:global/jms/tx.q1?sessionTransacted=true&amp;messageSelector=abd" />
+		</wsdl:port>		
+	</wsdl:service>
+</wsdl:definitions>
